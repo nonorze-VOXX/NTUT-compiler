@@ -1,4 +1,4 @@
-import Data.Void (absurd)
+import Prelude hiding (foldl, foldr, map)
 
 data BTree a
   = Leaf a
@@ -18,20 +18,47 @@ tl (Branch (x, y)) = aux (Branch (x, y))
     aux (Branch (Leaf _, right)) = right
     aux (Branch (left, right)) = Branch (aux left, right)
 
-mem :: a -> BTree a -> bool
-mem = undefined
+mem :: (Eq a) => a -> BTree a -> Bool
+mem a (Leaf l) = l == a
+mem a (Branch (l, r)) = mem a l || mem a r
 
 rev :: BTree a -> BTree a
-rev = undefined
+rev (Leaf a) = Leaf a
+rev (Branch (l, r)) = Branch (rev r, rev l)
 
 map :: (a -> b) -> BTree a -> BTree b
-map = undefined
+map f (Leaf a) = Leaf (f a)
+map f (Branch (l, r)) = Branch (map f l, map f r)
 
 foldl :: (acc -> a -> acc) -> acc -> BTree a -> acc
-foldl = undefined
+foldl f acc (Leaf a) = f acc a
+foldl f acc (Branch (l, r)) = foldl f (foldl f acc l) r
 
 foldr :: (a -> acc -> acc) -> acc -> BTree a -> acc
-foldr = undefined
+foldr f acc (Leaf a) = f a acc
+foldr f acc (Branch (l, r)) = foldr f (foldr f acc r) l
 
 seq2list :: BTree a -> [a]
-seq2list = undefined
+seq2list = foldr (:) []
+
+findOpt :: (Eq a) => a -> BTree a -> Maybe Integer
+findOpt x l =
+  fst $ foldl aux (Nothing, 0) l
+  where
+    aux (Nothing, i) s =
+      if x == s
+        then (Just i, i + 1)
+        else (Nothing, i + 1)
+    aux (n, i) s = (n, i + 1)
+
+nth :: (Eq a) => Integer -> BTree a -> a
+nth x l =
+  case fst (foldl aux (Nothing, 0) l) of
+    Nothing -> error "index no found"
+    Just n -> n
+  where
+    aux (Nothing, i) s =
+      if x == i
+        then (Just s, i + 1)
+        else (Nothing, i + 1)
+    aux (n, i) s = (n, i + 1)
