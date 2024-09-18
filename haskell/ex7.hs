@@ -51,14 +51,14 @@ findOpt x l =
         else (Nothing, i + 1)
     aux (n, i) s = (n, i + 1)
 
-nth :: (Eq a) => Integer -> BTree a -> a
-nth x l =
-  case fst (foldl aux (Nothing, 0) l) of
+nth :: (Eq a) => BTree a -> Integer -> a
+nth s n =
+  case fst (foldl aux (Nothing, 0) s) of
     Nothing -> error "index no found"
-    Just n -> n
+    Just n' -> n'
   where
-    aux (Nothing, i) s =
-      if x == i
-        then (Just s, i + 1)
+    aux (Nothing, i) s' =
+      if n == i
+        then (Just s', i + 1)
         else (Nothing, i + 1)
-    aux (n, i) s = (n, i + 1)
+    aux (n', i) s = (n', i + 1)
