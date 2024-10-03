@@ -13,7 +13,7 @@ main:
 
 
 p1:
-    pushq % rbp
+    pushq %rbp
     movq %rsp, %rbp
     subq $16, %rsp
 
@@ -32,7 +32,7 @@ p1:
     ret
 
 p2:
-    pushq % rbp
+    pushq %rbp
     movq %rsp, %rbp
     subq $16, %rsp
 
