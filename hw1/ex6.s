@@ -53,10 +53,9 @@ start_sqrt_for:
     jg end_sqrt_for 
 
     addl $1, %r8d
-    movl %r8d, %r10d
-    imul $2, %r10d
-    addl $1, %r10d
-    addl %r10d, %r9d
+
+    # s += 2*c +1
+    leal 1(%r9d,%r8d,2), %r9d
 
     jmp start_sqrt_for
 end_sqrt_for:
