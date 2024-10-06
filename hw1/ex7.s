@@ -14,7 +14,7 @@ main:
 		call f
 
 		movl %eax, %esi
-		movl $format, %edi
+		movl $solution, %edi
 
 		movl $0,%eax
 		call printf
@@ -86,7 +86,7 @@ f:
 		movl -8(%rbp), %r8d #c
 		mov L(%rip), %cl
 		sal %cl, %r8d # ;c << L
-		and -4(%rbp), %r8d# ; c<<L |i
+		or -4(%rbp), %r8d# ; c<<L |i
 		movl %r8d, -12(%rbp) # key
 
 		movl -12(%rbp), %r8d
@@ -166,6 +166,7 @@ return_eax:
         .data
 N: .int 15
 L: .int 4
+solution: .string "solution = %d\n"
 format: .string "%d "
 endl: .string "\n"
 m:
