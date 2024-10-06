@@ -56,6 +56,15 @@ int f(int i, int c) {
 // solving the problem means calling f with all rows and columns
 int main() {
   printf("solution = %d\n", f(0, (1 << N) - 1));
+  int j = 0;
+  for (j = 0; j < N; j++) {
+    int jj = 0;
+    for(;jj<N;jj++){
+    printf("%d ", memo[j*N+jj]);
+    }
+    printf("\n");
+  }
+
   return 0;
 }
 

@@ -1,11 +1,10 @@
-        .text
-	.globl	main
-
-main:
-        xorq    %rax, %rax
-        ret
-
-        .data
+	.file	"matrix.c"
+	.text
+	.globl	m
+	.section	.rodata
+	.align 32
+	.type	m, @object
+	.size	m, 900
 m:
 	.long	7
 	.long	53
@@ -232,10 +231,128 @@ m:
 	.long	302
 	.long	35
 	.long	805
-        .bss
-memo:
-        .space	2097152
-
-## Local Variables:
-## compile-command: "gcc matrix.s && ./a.out"
-## End:
+	.local	memo
+	.comm	memo,2097152,32
+	.text
+	.globl	f
+	.type	f, @function
+f:
+.LFB0:
+	.cfi_startproc
+	pushq	%rbp
+	.cfi_def_cfa_offset 16
+	.cfi_offset 6, -16
+	movq	%rsp, %rbp
+	.cfi_def_cfa_register 6
+	pushq	%rbx
+	subq	$56, %rsp
+	.cfi_offset 3, -24
+	movl	%edi, -52(%rbp)
+	movl	%esi, -56(%rbp)
+	cmpl	$15, -52(%rbp)
+	jne	.L2
+	movl	$0, %eax
+	jmp	.L3
+.L2:
+	movl	-56(%rbp), %eax
+	sall	$4, %eax
+	orl	-52(%rbp), %eax
+	movl	%eax, -28(%rbp)
+	movl	-28(%rbp), %eax
+	cltq
+	movl	memo(,%rax,4), %eax
+	movl	%eax, -32(%rbp)
+	cmpl	$0, -32(%rbp)
+	je	.L4
+	movl	-32(%rbp), %eax
+	jmp	.L3
+.L4:
+	movl	$0, -20(%rbp)
+	movl	$0, -24(%rbp)
+	movl	$0, -24(%rbp)
+	jmp	.L5
+.L8:
+	movl	-24(%rbp), %eax
+	movl	$1, %edx
+	movl	%eax, %ecx
+	sall	%cl, %edx
+	movl	%edx, %eax
+	movl	%eax, -36(%rbp)
+	movl	-56(%rbp), %eax
+	andl	-36(%rbp), %eax
+	testl	%eax, %eax
+	je	.L9
+	movl	-24(%rbp), %eax
+	movslq	%eax, %rcx
+	movl	-52(%rbp), %eax
+	movslq	%eax, %rdx
+	movq	%rdx, %rax
+	salq	$4, %rax
+	subq	%rdx, %rax
+	addq	%rcx, %rax
+	movl	m(,%rax,4), %ebx
+	movl	-56(%rbp), %eax
+	subl	-36(%rbp), %eax
+	movl	-52(%rbp), %edx
+	addl	$1, %edx
+	movl	%eax, %esi
+	movl	%edx, %edi
+	call	f
+	addl	%ebx, %eax
+	movl	%eax, -40(%rbp)
+	movl	-40(%rbp), %eax
+	cmpl	-20(%rbp), %eax
+	jle	.L7
+	movl	-40(%rbp), %eax
+	movl	%eax, -20(%rbp)
+	jmp	.L7
+.L9:
+	nop
+.L7:
+	addl	$1, -24(%rbp)
+.L5:
+	cmpl	$14, -24(%rbp)
+	jle	.L8
+	movl	-28(%rbp), %eax
+	cltq
+	movl	-20(%rbp), %edx
+	movl	%edx, memo(,%rax,4)
+	movl	-20(%rbp), %eax
+.L3:
+	movq	-8(%rbp), %rbx
+	leave
+	.cfi_def_cfa 7, 8
+	ret
+	.cfi_endproc
+.LFE0:
+	.size	f, .-f
+	.section	.rodata
+.LC0:
+	.string	"solution = %d\n"
+	.text
+	.globl	main
+	.type	main, @function
+main:
+.LFB1:
+	.cfi_startproc
+	pushq	%rbp
+	.cfi_def_cfa_offset 16
+	.cfi_offset 6, -16
+	movq	%rsp, %rbp
+	.cfi_def_cfa_register 6
+	movl	$32767, %esi
+	movl	$0, %edi
+	call	f
+	movl	%eax, %esi
+	movl	$.LC0, %edi
+	movl	$0, %eax
+	call	printf
+	movl	$0, %eax
+	popq	%rbp
+	.cfi_def_cfa 7, 8
+	ret
+	.cfi_endproc
+.LFE1:
+	.size	main, .-main
+	.ident	"GCC: (GNU) 14.2.1 20240912 (Red Hat 14.2.1-3)"
+	.section	.note.GNU-stack,"",@progbits
