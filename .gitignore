@@ -1,4 +1,4 @@
 *.cmi
 *.o
 *.exe
-*.out
+.vscode
