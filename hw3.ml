@@ -108,3 +108,73 @@ let () =
   assert (Cset.cardinal (follow cb r2) = 2);
   let r3 = Concat (Star a, b) in
   assert (Cset.cardinal (follow ca r3) = 2)
+
+
+  
+
+
+type state = Cset.t (* a state is a set of characters *)
+
+(* val next_state : regexp -> state -> char -> state *)
+let next_state (r:regexp) (now:state) (c:char) =
+  let f (a:ichar) (b:Cset.t) = Cset.union (follow a r) ( b ) 
+  in 
+  Cset.fold f now Cset.empty
+
+
+module Cmap = Map.Make(Char) (* dictionary whose keys are characters *)
+module Smap = Map.Make(Cset) (* dictionary whose keys are states *)
+type autom = {
+  start : state;
+  trans : state Cmap.t Smap.t 
+  (* state dictionary -> (character dictionary -> state) *)
+}
+let eof = ('#', -1)
+
+let make_dfa r =
+  let r = Concat (r, Character eof) in
+  (* transitions under construction *)
+  let trans = ref Smap.empty in
+  let rec transitions q = 
+  (* the transitions function constructs all the transitions of the state q,
+  if this is the first time q is visited *)
+  (* TODO... *)
+  true
+    (* let getFollow (a:ichar) (b:Cset.t) = Cset.union (follow a r) b in
+    let maybeNext = Cset.fold getFollow q Cset.empty in
+    let getNextState (c, i) (b:Cset.t) = Cset.union (next_state r q c) b in
+    let nState =(Cset.fold getNextState maybeNext Cset.empty) in
+    trans := Smap.add q nState !trans *)
+    
+  in
+  let q0 = first r in
+  transitions q0;
+  { start = q0; trans = !trans } (* fix this syntx error**)
+
+
+let fprint_state fmt q =
+  Cset.iter (fun (c,i) ->
+  if c = '#' then Format.fprintf fmt "# " else Format.fprintf fmt "%c%i " c i) q
+  let fprint_transition fmt q c q' =
+  Format.fprintf fmt "\"%a\" -> \"%a\" [label=\"%c\"];@\n"
+  fprint_state q
+  fprint_state q'
+  c
+let fprint_autom fmt a =
+  Format.fprintf fmt "digraph A {@\n";
+  Format.fprintf fmt " @[\"%a\" [ shape = \"rect\"];@\n" fprint_state a.start;
+  Smap.iter
+    (fun q t -> Cmap.iter (fun c q' -> fprint_transition fmt q c q') t)
+    a.trans;
+  Format.fprintf fmt "@]@\n}@."
+let save_autom file a =
+  let ch = open_out file in
+  Format.fprintf (Format.formatter_of_out_channel ch) "%a" fprint_autom a;
+  close_out ch
+
+(* (a|b)*a(a|b) *)
+let r = Concat (Star (Union (Character ('a', 1), Character ('b', 1))),
+          Concat (Character ('a', 2),
+            Union (Character ('a', 3), Character ('b', 2))))
+let a = make_dfa r
+let () = save_autom "autom.dot" a
