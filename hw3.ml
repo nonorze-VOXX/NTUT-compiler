@@ -126,10 +126,11 @@ let cichar (c : char) (i : int) = c
 
 (* val next_state : regexp -> state -> char -> state *)
 let next_state (r : regexp) (now : state) (c : char) =
-  let f ((c', i) : ichar) (b : Cset.t) =
-    if c' = c then Cset.union (follow (c', i) r) b else b
-  in
-  Cset.fold f now Cset.empty
+  Cset.fold
+    (fun ((c', i) : ichar) (b : Cset.t) ->
+      if c' = c then Cset.union (follow (c', i) r) b else b)
+    now
+    Cset.empty
 
 module Cmap = Map.Make (Char) (* dictionary whose keys are characters *)
 module Smap = Map.Make (Cset) (* dictionary whose keys are states *)
