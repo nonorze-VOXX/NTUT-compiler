@@ -31,6 +31,18 @@ module Cset = Set.Make (struct
   let compare = Stdlib.compare
 end)
 
+open Printf
+
+let print_Cset ns =
+  let f (a, b) = a in
+  let p = Seq.map f (Cset.to_seq ns) in
+  List.iter (printf "%c ") (List.of_seq p);
+  printf "\n";
+  let f (a, b) = b in
+  let p = Seq.map f (Cset.to_seq ns) in
+  List.iter (printf "%d ") (List.of_seq p);
+  printf "\n"
+
 (*type null : regexp -> bool*)
 let rec null (r : regexp) : bool =
   match r with
@@ -84,9 +96,9 @@ let rec follow (c : ichar) (r : regexp) : Cset.t =
   | Character rc -> Cset.empty
   | Union (r1, r2) -> Cset.union (follow c r1) (follow c r2)
   | Concat (r1, r2) ->
-    if Cset.equal (Cset.singleton c) (last r1) then
+    if Cset.mem c (last r1) then
       Cset.union (Cset.union (first r2) (follow c r1)) (follow c r2)
-    else follow c r2
+    else Cset.union (follow c r1) (follow c r2)
   | Star s ->
     if Cset.mem c (last s) then Cset.union (first s) (follow c s)
     else follow c s
@@ -110,9 +122,13 @@ let () =
 
 type state = Cset.t (* a state is a set of characters *)
 
+let cichar (c : char) (i : int) = c
+
 (* val next_state : regexp -> state -> char -> state *)
 let next_state (r : regexp) (now : state) (c : char) =
-  let f (a : ichar) (b : Cset.t) = Cset.union (follow a r) b in
+  let f ((c', i) : ichar) (b : Cset.t) =
+    if c' = c then Cset.union (follow (c', i) r) b else b
+  in
   Cset.fold f now Cset.empty
 
 module Cmap = Map.Make (Char) (* dictionary whose keys are characters *)
@@ -131,20 +147,27 @@ let make_dfa r =
   (* transitions under construction *)
   let trans = ref Smap.empty in
   let rec transitions q =
-    (* the transitions function constructs all the transitions of the state q,
-       if this is the first time q is visited *)
-    (* TODO... *)
-    let getFollow (a : ichar) (b : Cset.t) = Cset.union (follow a r) b in
-    let maybeNext = Cset.fold getFollow q Cset.empty in
-    let getNextState (c, i) (b : state Cmap.t) =
-      Cmap.add c (next_state r q c) b
-    in
-    let nState = Cset.fold getNextState maybeNext Cmap.empty in
-    trans := Smap.add q nState !trans;
+    let is_state_in now _ (all : bool) = now = q || all in
+    let is_in = Smap.fold is_state_in !trans false in
+    if is_in then ignore ()
+    else
+      (* the transitions function constructs all the transitions of the state q,
+         if this is the first time q is visited *)
+      let getFollow (a : ichar) (b : Cset.t) =
+        (* let printa (c, i) = printf "a : %c %d" c i in printa a; print_Cset
+           (follow a r); *)
+        Cset.union (follow a r) b
+      in
+      let maybeNext = Cset.fold getFollow q Cset.empty in
+      let getNextState (c, i) (b : state Cmap.t) =
+        Cmap.add c (next_state r q c) b
+      in
+      let nState = Cset.fold getNextState maybeNext Cmap.empty in
+      trans := Smap.add q nState !trans;
 
-    let callNextTransition k v = ignore (transitions v) in
+      let callNextTransition k v = transitions v in
 
-    Cmap.iter callNextTransition nState
+      Cmap.iter callNextTransition nState
   in
   let q0 = first r in
   transitions q0;
