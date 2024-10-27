@@ -154,12 +154,7 @@ let make_dfa r =
     else
       (* the transitions function constructs all the transitions of the state q,
          if this is the first time q is visited *)
-      let getFollow (a : ichar) (b : Cset.t) =
-        (* let printa (c, i) = printf "a : %c %d" c i in printa a; print_Cset
-           (follow a r); *)
-        Cset.union (follow a r) b
-      in
-      let maybeNext = Cset.fold getFollow q Cset.empty in
+      let maybeNext = q in
       let getNextState (c, i) (b : state Cmap.t) =
         Cmap.add c (next_state r q c) b
       in
@@ -211,6 +206,95 @@ let r =
     , Concat (Character ('a', 2), Union (Character ('a', 3), Character ('b', 2)))
     )
 
+(* ex4 *)
 let a = make_dfa r
 
 let () = save_autom "autom.dot" a
+
+let first_char s = if String.length s > 0 then Some (String.get s 0) else None
+
+let without_first_char s =
+  if String.length s > 1 then Some (String.sub s 1 (String.length s - 1))
+  else None
+
+(* val recognize : autom -> string -> bool *)
+let recognize (a : autom) (s : string) =
+  let s = String.cat s "#" in
+  let rec single now_state ss =
+    match first_char ss with
+    | Some c ->
+      let nextStateSet = Smap.find now_state a.trans in
+      if Cmap.mem c nextStateSet then
+        let nextState = Cmap.find c nextStateSet in
+        if c == '#' then Some now_state
+        else
+          match without_first_char ss with
+          | None -> None
+          | Some s -> single nextState s
+      else None
+    | None -> Some now_state
+  in
+  let init_state = a.start in
+  match single init_state s with
+  | Some _ -> true
+  | None -> false
+
+(* ex5 *)
+let () = assert (recognize a "aa")
+
+let () = assert (recognize a "ab")
+
+let () = assert (recognize a "abababaab")
+
+let () = assert (recognize a "babababab")
+
+let () = assert (recognize a (String.make 1000 'b' ^ "ab"))
+
+let () = assert (not (recognize a "a"))
+
+let () = assert (not (recognize a "b"))
+
+let () = assert (not (recognize a "ba"))
+
+let () = assert (not (recognize a "aba"))
+
+let () = assert (not (recognize a "abababaaba"))
+
+let r =
+  Star
+    (Union
+       ( Star (Character ('a', 1))
+       , Concat
+           ( Character ('b', 1)
+           , Concat (Star (Character ('a', 2)), Character ('b', 2)) ) ))
+
+let a = make_dfa r
+
+let () = save_autom "autom2.dot" a
+
+let () = assert (recognize a "")
+
+let () = assert (recognize a "bb")
+
+let () = assert (recognize a "aaa")
+
+let () = assert (recognize a "aaabbaaababaaa")
+
+let () = assert (recognize a "bbbbbbbbbbbbbb")
+
+let () = assert (recognize a "bbbbabbbbabbbabbb")
+
+let () = assert (not (recognize a "b"))
+
+let () = assert (not (recognize a "ba"))
+
+let () = assert (not (recognize a "ab"))
+
+let () = assert (not (recognize a "aaabbaaaaabaaa"))
+
+let () = assert (not (recognize a "bbbbbbbbbbbbb"))
+
+let () = assert (not (recognize a "bbbbabbbbabbbabbbb"))
+(* ex6 *)
+(* let r3 = Concat (Star (Character ('a', 1)), Character ('b', 1)) let a =
+   make_dfa r3 let () = generate "a.ml" a *)
