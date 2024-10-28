@@ -319,6 +319,10 @@ let get_index_of_state (s : state) (a : autom) =
   | index, true -> index
   | _, false -> -1
 
+let is_final_state s = Cset.mem eof s
+
+let no_next_trans s = Cset.is_empty s
+
 let rec autom_to_fprintf fmt a =
   Format.fprintf
     fmt
@@ -335,18 +339,21 @@ let rec autom_to_fprintf fmt a =
     (Smap.fold
        (fun q v index ->
          Format.fprintf fmt "and state_%d b = " (get_index_of_state q a);
-         Format.fprintf fmt "let nc = next_char b in \n";
-         Format.fprintf fmt "if nc= '#' then \n raise End_of_file else \n";
-         Cmap.iter
-           (fun k v ->
-             Format.fprintf
-               fmt
-               "if '%c' = nc then state_%d b else\n"
-               k
-               (get_index_of_state v a))
-           v;
-         Format.fprintf fmt "raise (Failure(\"lexical error\"))\n";
-
+         if no_next_trans q then
+           Format.fprintf fmt "raise (Failure(\"lexical error\"))\n"
+         else if is_final_state q then
+           Format.fprintf fmt "b.last <- b.current; raise (Failure(\"ok\"))\n"
+         else (
+           Format.fprintf fmt "let nc = next_char b in \n";
+           Cmap.iter
+             (fun k v ->
+               Format.fprintf
+                 fmt
+                 "if '%c' = nc then state_%d b else\n"
+                 k
+                 (get_index_of_state v a))
+             v;
+           Format.fprintf fmt "raise (Failure(\"lexical error\"))\n");
          index + 1)
        a.trans
        0)
