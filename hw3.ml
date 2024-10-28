@@ -270,7 +270,9 @@ let r =
 
 let a = make_dfa r
 
-let () = save_autom "autom2.dot" a
+let () =
+  printf "\n";
+  save_autom "autom2.dot" a
 
 let () = assert (recognize a "")
 
@@ -296,5 +298,62 @@ let () = assert (not (recognize a "bbbbbbbbbbbbb"))
 
 let () = assert (not (recognize a "bbbbabbbbabbbabbbb"))
 (* ex6 *)
-(* let r3 = Concat (Star (Character ('a', 1)), Character ('b', 1)) let a =
-   make_dfa r3 let () = generate "a.ml" a *)
+
+let r3 = Concat (Star (Character ('a', 1)), Character ('b', 1))
+
+let a = make_dfa r3
+
+let () = save_autom "autom3.dot" a
+
+let find_index trans s =
+  Smap.fold
+    (fun k v (index, finded) ->
+      if finded then (index, finded)
+      else if k = s then (index, true)
+      else (index + 1, false))
+    trans
+    (0, false)
+
+let get_index_of_state (s : state) (a : autom) =
+  match find_index a.trans s with
+  | index, true -> index
+  | _, false -> -1
+
+let rec autom_to_fprintf fmt a =
+  Format.fprintf
+    fmt
+    "type buffer = { text: string; mutable current: int; mutable last: int }\n";
+  Format.fprintf fmt " let next_char b =\n ";
+  Format.fprintf
+    fmt
+    "if b.current = String.length b.text then raise End_of_file;\n ";
+  Format.fprintf fmt " let c = b.text.[b.current] in\n ";
+  Format.fprintf fmt "b.current <- b.current + 1;\n";
+  Format.fprintf fmt "c\n";
+  Format.fprintf fmt "let rec stateSuck = true\n";
+  ignore
+    (Smap.fold
+       (fun q v index ->
+         Format.fprintf fmt "and state_%d b = " (get_index_of_state q a);
+         Format.fprintf fmt "let nc = next_char b in \n";
+         Format.fprintf fmt "if nc= '#' then \n raise End_of_file else \n";
+         Cmap.iter
+           (fun k v ->
+             Format.fprintf
+               fmt
+               "if '%c' = nc then state_%d b else\n"
+               k
+               (get_index_of_state v a))
+           v;
+         Format.fprintf fmt "raise (Failure(\"lexical error\"))\n";
+
+         index + 1)
+       a.trans
+       0)
+
+let generate file_name (a : autom) =
+  let ch = open_out file_name in
+  Format.fprintf (Format.formatter_of_out_channel ch) "%a" autom_to_fprintf a;
+  close_out ch
+
+let () = generate "a.ml" a
