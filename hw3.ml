@@ -340,9 +340,9 @@ let rec autom_to_fprintf fmt a =
        (fun q v index ->
          Format.fprintf fmt "and state_%d b = " (get_index_of_state q a);
          if no_next_trans q then
-           Format.fprintf fmt "raise (Failure(\"lexical error\"))\n"
+           Format.fprintf fmt "failwith (\"lexical error\")\n"
          else if is_final_state q then
-           Format.fprintf fmt "b.last <- b.current; raise (Failure(\"ok\"))\n"
+           Format.fprintf fmt "b.last <- b.current; failwith (\"ok\")\n"
          else (
            Format.fprintf fmt "let nc = next_char b in \n";
            Cmap.iter
@@ -353,7 +353,7 @@ let rec autom_to_fprintf fmt a =
                  k
                  (get_index_of_state v a))
              v;
-           Format.fprintf fmt "raise (Failure(\"lexical error\"))\n");
+           Format.fprintf fmt "failwith (\"lexical error\")\n");
          index + 1)
        a.trans
        0)
