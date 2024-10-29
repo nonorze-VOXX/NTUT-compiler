@@ -11,3 +11,4 @@ and state_2 b = let nc = next_char b in
 if 'a' = nc then state_2 b else
 if 'b' = nc then state_1 b else
 failwith ("lexical error")
+let start = state_2

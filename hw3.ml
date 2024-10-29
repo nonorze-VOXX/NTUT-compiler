@@ -305,11 +305,11 @@ let a = make_dfa r3
 
 let () = save_autom "autom3.dot" a
 
-let find_index trans s =
+let find_index trans (s : state) =
   Smap.fold
     (fun k v (index, finded) ->
       if finded then (index, finded)
-      else if k = s then (index, true)
+      else if Cset.equal k s then (index, true)
       else (index + 1, false))
     trans
     (0, false)
@@ -356,7 +356,9 @@ let rec autom_to_fprintf fmt a =
            Format.fprintf fmt "failwith (\"lexical error\")\n");
          index + 1)
        a.trans
-       0)
+       0);
+
+  Format.fprintf fmt "let start = state_%d\n" (get_index_of_state a.start a)
 
 let generate file_name (a : autom) =
   let ch = open_out file_name in
