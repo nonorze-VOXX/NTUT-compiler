@@ -8,10 +8,16 @@
 
 /* Declaration of tokens */
 
+%token <int> CST
 %token EOF
+%token NEWLINE
 /* To be completed */
+// %token PLUS MINUS TIMES DIV MOD
+
+%token FORWARD
 
 /* Priorities and associativity of tokens */
+// %left PLUS MINUS
 
 /* To be completed */
 
@@ -26,8 +32,20 @@
 /* Production rules of the grammar */
 
 prog:
-  /* To be completed */ EOF
-    { { defs = []; main = Sblock [] } (* To be modified *) }
+// | NEWLINE ? b = stmt NEWLINE ? EOF
+| NEWLINE ? b = list(stmt) NEWLINE ? EOF
+    { { defs = []; main = Sblock b } (* To be modified *) }
+    // { { defs = []; main = Sblock [] } (* To be modified *) }
+// |EOF
+//     { { defs = []; main =  } (* To be modified *) }
 ;
 
 
+stmt:
+| FORWARD expr
+    { Sforward $2 }
+;
+expr:
+| c = CST
+    { Econst c }
+;
