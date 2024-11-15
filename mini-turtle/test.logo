@@ -5,6 +5,8 @@ forward 100 + 100 * 0
 pendown
 turnleft
 turnleft
-turnleft
+//turnleft
+repeat 3{
 turnright
 forward 100 + 100 * 0
+}

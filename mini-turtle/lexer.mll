@@ -18,6 +18,8 @@ let integer = '0' | ['1'-'9'] digit*
 let plus = '+'
 let minus = '-'
 let div = '/'
+let comment = "//" [^'\n']* '\n'
+let repeat = "repeat"
 
 rule token = parse
   | "forward" {FORWARD}
@@ -28,6 +30,7 @@ rule token = parse
   | plus {PLUS}
   | minus {MINUS}
   | div {DIV}
+  | comment { token lexbuf }
   | "penup" {PENUP}
   | "pendown" {PENDOWN}
   | "turnleft" {TURNLEFT}
@@ -39,6 +42,9 @@ rule token = parse
   | "green" {GREEN}
   | "blue" {BLUE}
   | '*' {TIMES}
+  | repeat {REPEAT}
+  | '{' {LBLOCK}
+  | '}' {RBLOCK}
   | eof { EOF }
   (* | _ { token lexbuf} *)
   | _ { assert false }

@@ -19,6 +19,8 @@
 
 %token COLOR
 %token BLACK WHITE RED GREEN BLUE
+%token REPEAT
+%token LBLOCK RBLOCK
 
 /* Priorities and associativity of tokens */
 // %left PLUS MINUS
@@ -58,6 +60,8 @@ stmt:
     { Sturn (Econst 90) }
 | TURNRIGHT NEWLINE
     { Sturn (Econst (-90)) }
+| REPEAT e = expr LBLOCK NEWLINE b = list(stmt)  RBLOCK NEWLINE
+    { Srepeat (e, Sblock b) }
 ;
 expr:
 | c = CST
