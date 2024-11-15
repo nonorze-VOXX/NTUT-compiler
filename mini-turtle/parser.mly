@@ -15,7 +15,7 @@
 %token PLUS MINUS TIMES DIV MOD
 
 %token FORWARD
-%token PENDOWN PENUP
+%token PENDOWN PENUP TURNLEFT TURNRIGHT
 
 %token COLOR
 %token BLACK WHITE RED GREEN BLUE
@@ -54,6 +54,10 @@ stmt:
     { Spendown }
 | COLOR c = color NEWLINE
     {Scolor c }
+| TURNLEFT NEWLINE
+    { Sturn (Econst 90) }
+| TURNRIGHT NEWLINE
+    { Sturn (Econst (-90)) }
 ;
 expr:
 | c = CST

@@ -3,4 +3,8 @@ penup
 color blue
 forward 100 + 100 * 0
 pendown
+turnleft
+turnleft
+turnleft
+turnright
 forward 100 + 100 * 0

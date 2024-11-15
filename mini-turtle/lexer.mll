@@ -30,6 +30,8 @@ rule token = parse
   | div {DIV}
   | "penup" {PENUP}
   | "pendown" {PENDOWN}
+  | "turnleft" {TURNLEFT}
+  | "turnright" {TURNRIGHT}
   | "color" {COLOR}
   | "black" {BLACK}
   | "white" {WHITE}
@@ -38,7 +40,7 @@ rule token = parse
   | "blue" {BLUE}
   | '*' {TIMES}
   | eof { EOF }
-  | _ { token lexbuf}
-  (* | _ { assert false To be completed } *)
+  (* | _ { token lexbuf} *)
+  | _ { assert false }
 
 
