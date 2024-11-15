@@ -20,8 +20,10 @@
 %token COLOR
 %token BLACK WHITE RED GREEN BLUE
 %token REPEAT
-%token LBLOCK RBLOCK
-
+%token LBLOCK RBLOCK LPAREN RPAREN
+%token DEF
+%token COMMA
+%token <string> IDENT
 /* Priorities and associativity of tokens */
 // %left PLUS MINUS
 
@@ -39,13 +41,26 @@
 
 prog:
 // | NEWLINE ? b = stmt NEWLINE ? EOF
-| NEWLINE ? b = list(stmt) NEWLINE ? EOF
-    { { defs = []; main = Sblock b } (* To be modified *) }
-    // { { defs = []; main = Sblock [] } (* To be modified *) }
-// |EOF
-//     { { defs = []; main =  } (* To be modified *) }
+| NEWLINE ? defs = list(def) b = list(stmt) NEWLINE ? EOF
+    { { defs = defs; main = Sblock b } (* To be modified *) }
 ;
 
+def: 
+| DEF name=IDENT LPAREN formals = separated_list(COMMA, ident)   RPAREN NEWLINE? LBLOCK NEWLINE b = list(stmt) RBLOCK NEWLINE
+    { { name = name; formals = formals; body = Sblock b } }
+;
+ident:
+  id = IDENT { id }
+;
+
+
+
+params:
+| s= IDENT 
+    {s}
+| s = IDENT COMMA s1=params
+    {s}
+;
 
 stmt:
 | FORWARD e = expr NEWLINE
@@ -60,17 +75,20 @@ stmt:
     { Sturn (Econst 90) }
 | TURNRIGHT NEWLINE
     { Sturn (Econst (-90)) }
-| REPEAT e = expr LBLOCK NEWLINE b = list(stmt)  RBLOCK NEWLINE
+| REPEAT e = expr LBLOCK NEWLINE b = list(stmt) NEWLINE? RBLOCK NEWLINE
     { Srepeat (e, Sblock b) }
+| name=IDENT LPAREN args = separated_list(COMMA, expr) RPAREN
+    {Scall (name, args)}
+| NEWLINE
+    { Sblock [] }
 ;
 expr:
 | c = CST
     { Econst c }
 | e1 = expr o = binop e2 = expr
     {Ebinop (o,e1,e2)}
-    // {Ebinop ( Sub, 0, e1)}
-// | c = expr PLUS d = expr
-//     { Econst (c+d)}
+| n = IDENT
+    { Evar n }
 ;
 %inline binop:
 | PLUS {Add}

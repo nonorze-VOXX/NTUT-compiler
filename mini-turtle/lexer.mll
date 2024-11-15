@@ -20,6 +20,8 @@ let minus = '-'
 let div = '/'
 let comment = "//" [^'\n']* '\n'
 let repeat = "repeat"
+let char = ['a'-'z' 'A'-'Z']
+let string = char+
 
 rule token = parse
   | "forward" {FORWARD}
@@ -45,6 +47,11 @@ rule token = parse
   | repeat {REPEAT}
   | '{' {LBLOCK}
   | '}' {RBLOCK}
+  | '(' {LPAREN}
+  | ')' { RPAREN }
+  | "def" { DEF }
+  | ',' {COMMA}
+  | string as s { IDENT s }
   | eof { EOF }
   (* | _ { token lexbuf} *)
   | _ { assert false }
