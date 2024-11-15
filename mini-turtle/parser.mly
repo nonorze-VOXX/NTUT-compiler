@@ -48,6 +48,8 @@ prog:
 def: 
 | DEF name=IDENT LPAREN formals = separated_list(COMMA, ident)   RPAREN NEWLINE? LBLOCK NEWLINE b = list(stmt) RBLOCK NEWLINE
     { { name = name; formals = formals; body = Sblock b } }
+| DEF name=IDENT LPAREN formals = separated_list(COMMA, ident)   RPAREN NEWLINE? b = stmt  NEWLINE
+    { { name = name; formals = formals; body = Sblock [b] } }
 ;
 ident:
   id = IDENT { id }
