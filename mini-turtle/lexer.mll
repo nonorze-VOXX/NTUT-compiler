@@ -14,7 +14,10 @@ at each carriage return ('\n' character) *)
 }
 let space = ' ' | '\t'
 let digit = ['0'-'9']
-let integer = '0' | ['1'-'0'] digit*
+let integer = '0' | ['1'-'9'] digit*
+let plus = '+'
+let minus = '-'
+let div = '/'
 
 rule token = parse
   | "forward" {FORWARD}
@@ -22,6 +25,12 @@ rule token = parse
   | integer as i  { CST (int_of_string i) }
   (* | newline { new_line lexbuf; token lexbuf } *)
   | '\n' { NEWLINE }
+  | plus {PLUS}
+  | minus {MINUS}
+  | div {DIV}
+  | '*' {TIMES}
   | eof { EOF }
-  | _ { assert false (* To be completed *) }
+  | _ { token lexbuf}
+  (* | _ { assert false To be completed } *)
+
 

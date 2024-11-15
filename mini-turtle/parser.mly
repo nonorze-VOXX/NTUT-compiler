@@ -12,7 +12,7 @@
 %token EOF
 %token NEWLINE
 /* To be completed */
-// %token PLUS MINUS TIMES DIV MOD
+%token PLUS MINUS TIMES DIV MOD
 
 %token FORWARD
 
@@ -42,10 +42,20 @@ prog:
 
 
 stmt:
-| FORWARD expr
-    { Sforward $2 }
+| FORWARD e = expr NEWLINE
+    { Sforward e }
 ;
 expr:
 | c = CST
     { Econst c }
+| e1 = expr o = binop e2 = expr
+    {Ebinop (o,e1,e2)}
+    // {Ebinop ( Sub, 0, e1)}
+// | c = expr PLUS d = expr
+//     { Econst (c+d)}
 ;
+%inline binop:
+| PLUS {Add}
+| MINUS {Sub}
+| TIMES {Mul}
+| DIV {Div}
