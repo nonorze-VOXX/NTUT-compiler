@@ -1,1 +1,6 @@
-forward 100 / 4
+forward 100 + 100 * 0
+penup
+color blue
+forward 100 + 100 * 0
+pendown
+forward 100 + 100 * 0

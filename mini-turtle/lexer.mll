@@ -28,6 +28,14 @@ rule token = parse
   | plus {PLUS}
   | minus {MINUS}
   | div {DIV}
+  | "penup" {PENUP}
+  | "pendown" {PENDOWN}
+  | "color" {COLOR}
+  | "black" {BLACK}
+  | "white" {WHITE}
+  | "red" {RED}
+  | "green" {GREEN}
+  | "blue" {BLUE}
   | '*' {TIMES}
   | eof { EOF }
   | _ { token lexbuf}

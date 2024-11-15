@@ -42,6 +42,3 @@ type def = {
 type program = {
   defs : def list;
   main : stmt; }
-
-
-

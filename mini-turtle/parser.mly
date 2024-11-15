@@ -15,6 +15,10 @@
 %token PLUS MINUS TIMES DIV MOD
 
 %token FORWARD
+%token PENDOWN PENUP
+
+%token COLOR
+%token BLACK WHITE RED GREEN BLUE
 
 /* Priorities and associativity of tokens */
 // %left PLUS MINUS
@@ -44,6 +48,12 @@ prog:
 stmt:
 | FORWARD e = expr NEWLINE
     { Sforward e }
+| PENUP  NEWLINE
+    { Spenup }
+| PENDOWN NEWLINE
+    { Spendown }
+| COLOR c = color NEWLINE
+    {Scolor c }
 ;
 expr:
 | c = CST
@@ -59,3 +69,11 @@ expr:
 | MINUS {Sub}
 | TIMES {Mul}
 | DIV {Div}
+;
+color:
+| BLACK {Turtle.black}
+| WHITE {Turtle.white}
+| RED {Turtle.red}
+| GREEN {Turtle.green}
+| BLUE {Turtle.blue}
+;
