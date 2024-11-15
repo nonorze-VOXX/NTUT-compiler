@@ -12,7 +12,7 @@
 %token EOF
 %token NEWLINE
 /* To be completed */
-%token PLUS MINUS TIMES DIV MOD
+%token PLUS MINUS TIMES DIV
 
 %token FORWARD
 %token PENDOWN PENUP TURNLEFT TURNRIGHT
@@ -63,19 +63,19 @@ params:
 ;
 
 stmt:
-| FORWARD e = expr NEWLINE
+| FORWARD e = expr 
     { Sforward e }
-| PENUP  NEWLINE
+| PENUP  
     { Spenup }
-| PENDOWN NEWLINE
+| PENDOWN 
     { Spendown }
-| COLOR c = color NEWLINE
+| COLOR c = color 
     {Scolor c }
-| TURNLEFT NEWLINE
-    { Sturn (Econst 90) }
-| TURNRIGHT NEWLINE
-    { Sturn (Econst (-90)) }
-| REPEAT e = expr LBLOCK NEWLINE b = list(stmt) NEWLINE? RBLOCK NEWLINE
+| TURNLEFT e=expr
+    { Sturn e}
+| TURNRIGHT e=expr
+    { Sturn e }
+| REPEAT e = expr LBLOCK NEWLINE? b = list(stmt) NEWLINE? RBLOCK NEWLINE?
     { Srepeat (e, Sblock b) }
 | name=IDENT LPAREN args = separated_list(COMMA, expr) RPAREN
     {Scall (name, args)}

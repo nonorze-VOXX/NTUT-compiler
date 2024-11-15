@@ -1,12 +1,13 @@
-forward 100 + 100 * 0
-penup
-color blue
-forward 100 + 100 * 0
-pendown
-turnleft
-turnleft
-//turnleft
-repeat 3{
-turnright
-forward 100 + 100 * 0
+//def polygone_aux(n, d, a) {
+  //turnleft 90 + a/2
+  //repeat n { forward d turnleft a }
+  //turnleft 90 - a/2
+//}
+
+def polygone(n, r) {
+  turnleft 180
 }
+
+color blue
+polygone(6, 100)
+

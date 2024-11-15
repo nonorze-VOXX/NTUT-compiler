@@ -20,14 +20,13 @@ let minus = '-'
 let div = '/'
 let comment = "//" [^'\n']* '\n'
 let repeat = "repeat"
-let char = ['a'-'z' 'A'-'Z']
-let string = char+
+let letter = ['a'-'z' 'A'-'Z']
+let ident = (letter | '_') (letter | digit | '_')*
 
 rule token = parse
   | "forward" {FORWARD}
   | space { token lexbuf }
   | integer as i  { CST (int_of_string i) }
-  (* | newline { new_line lexbuf; token lexbuf } *)
   | '\n' { NEWLINE }
   | plus {PLUS}
   | minus {MINUS}
@@ -51,7 +50,7 @@ rule token = parse
   | ')' { RPAREN }
   | "def" { DEF }
   | ',' {COMMA}
-  | string as s { IDENT s }
+  | ident as s { IDENT s }
   | eof { EOF }
   (* | _ { token lexbuf} *)
   | _ { assert false }
