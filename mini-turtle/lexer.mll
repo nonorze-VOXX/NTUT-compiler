@@ -27,7 +27,7 @@ rule token = parse
   | "forward" {FORWARD}
   | space { token lexbuf }
   | integer as i  { CST (int_of_string i) }
-  | '\n' { NEWLINE }
+  | '\n'+ { NEWLINE }
   | plus {PLUS}
   | minus {MINUS}
   | div {DIV}
@@ -50,6 +50,8 @@ rule token = parse
   | ')' { RPAREN }
   | "def" { DEF }
   | ',' {COMMA}
+  | "if" { IF }
+  | "else" { ELSE }
   | ident as s { IDENT s }
   | eof { EOF }
   (* | _ { token lexbuf} *)

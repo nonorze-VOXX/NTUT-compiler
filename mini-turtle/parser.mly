@@ -19,7 +19,7 @@
 
 %token COLOR
 %token BLACK WHITE RED GREEN BLUE
-%token REPEAT
+%token REPEAT IF ELSE
 %token LBLOCK RBLOCK LPAREN RPAREN
 %token DEF
 %token COMMA
@@ -41,10 +41,12 @@
 
 prog:
 // | NEWLINE ? b = stmt NEWLINE ? EOF
-| NEWLINE ? defs = list(def) b = list(stmt) NEWLINE ? EOF
+| list(nl) ? defs = list(def) b = list(stmt) list(nl) ? EOF
     { { defs = defs; main = Sblock b } (* To be modified *) }
 ;
-
+nl:
+| NEWLINE
+{}
 def: 
 | DEF name=IDENT LPAREN formals = separated_list(COMMA, ident)   RPAREN NEWLINE? LBLOCK NEWLINE b = list(stmt) RBLOCK NEWLINE
     { { name = name; formals = formals; body = Sblock b } }
@@ -75,10 +77,18 @@ stmt:
     {Scolor c }
 | TURNLEFT e=expr
     { Sturn e}
+| TURNLEFT LPAREN e=expr RPAREN
+    { Sturn e}
 | TURNRIGHT e=expr
-    { Sturn e }
+    { Sturn (Ebinop (Sub,Econst 0,e)) }
 | REPEAT e = expr LBLOCK NEWLINE? b = list(stmt) NEWLINE? RBLOCK NEWLINE?
     { Srepeat (e, Sblock b) }
+| IF  e = expr  LBLOCK NEWLINE? b1 = list(stmt) NEWLINE? RBLOCK NEWLINE? ELSE LBLOCK NEWLINE? b2 = list(stmt) NEWLINE? RBLOCK NEWLINE?
+    { Sif (e, Sblock b1, Sblock b2) }
+| IF  e = expr  LBLOCK NEWLINE? b1 = list(stmt) NEWLINE? RBLOCK NEWLINE? ELSE  NEWLINE? b2 = stmt NEWLINE?
+    { Sif (e, Sblock b1, Sblock [b2]) }
+| IF  e = expr  LBLOCK NEWLINE? b1 = list(stmt) NEWLINE? RBLOCK NEWLINE? 
+    { Sif (e, Sblock b1, Sblock []) }
 | name=IDENT LPAREN args = separated_list(COMMA, expr) RPAREN
     {Scall (name, args)}
 | NEWLINE
@@ -89,6 +99,8 @@ expr:
     { Econst c }
 | e1 = expr o = binop e2 = expr
     {Ebinop (o,e1,e2)}
+| MINUS e1 = expr 
+    {Ebinop (Sub,Econst 0,e1)}
 | n = IDENT
     { Evar n }
 ;

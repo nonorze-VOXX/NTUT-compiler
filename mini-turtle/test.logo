@@ -1,34 +1,35 @@
-(* Von Koch's*
- snowflake *)
-def polygone_aux(n, d, a) {
-  turnleft 90 + a/2
-  repeat n { 
-    forward d 
-    turnleft a
-     }
-  turnleft 90 - a/2
-}
-def polygone(n, r) {
-  penup
-  forward r
-  pendown
-  polygone_aux(n, r, 360/n)
-  penup
-  forward r
-  turnleft 180
-  pendown
-}
-def carre(r)
-  polygone(4, r)
-def pentagone(r)
-  polygone(5, r)
+(* Sierpinski triangle (Gabriel DORIATH DÖHLER) *)
 
-// carre(100)
-// color red
-// pentagone(100)
-color blue
-polygone(6, 100)
-// color green
-// polygone(12, 100)
-color red
-repeat 36 { pentagone(200) turnleft 10 }
+def main(n, d, a) {
+  turnleft_if_n_odd(n + 1, a)
+  curve(n, d, a)
+}
+
+def turnleft_if_n_odd(n, a) {
+  if n {
+    turnleft(a)
+    turnleft_if_n_odd(n - 1, -a)
+  }
+}
+
+def curve(n, d, a) {
+  if n {
+    curve(n - 1, d / 2, -a)
+    turnleft a
+    curve(n - 1, d / 2, a)
+    turnleft a
+    curve(n - 1, d / 2, -a)
+  } else {
+    forward d
+  }
+}
+
+penup
+forward -390
+turnright 90
+forward 320
+turnleft 90
+pendown
+
+main(8, 780,  60)
+
